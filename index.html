@@ -72,6 +72,11 @@ button,select,input{font:inherit}
 #chat input{flex:1;padding:10px;border:1px solid var(--line);border-radius:10px}
 .soc a{display:inline-block;margin:0 6px}
 .soc svg{width:36px;height:36px}
+#menu{display:none;position:absolute;top:100%;left:0;right:0;background:var(--ink);flex-direction:column;padding:6px 14px 12px;border-top:1px solid #fff3;max-height:70vh;overflow:auto}
+#menu.on{display:flex}
+#menu button{background:none;border:0;color:#fff;text-align:start;padding:12px 4px;font-size:16px;border-bottom:1px solid #fff2;cursor:pointer}
+#menu button.on{color:#f0b84a;font-weight:600}
+#cats{scroll-margin-top:70px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
 .sw{display:inline-block;width:36px;height:36px;border-radius:50%;outline:1px solid #0005;cursor:pointer}
 .sw.on{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--gold)}
@@ -88,7 +93,9 @@ footer a{color:#fff;margin:0 8px}
 <body>
 <header>
   <h1>Moul L'Hwayj</h1>
+  <button class="btn alt" id="bMenu" onclick="toggleMenu()"></button>
   <span class="flags" id="flags"></span>
+  <nav id="menu"></nav>
   <button class="btn alt" onclick="openCart()">🛒 <span id="cn">0</span></button>
   <button class="btn alt" onclick="openAdmin()" id="tAdmin">Admin</button>
 </header>
@@ -513,7 +520,15 @@ function chatUI() {
   $("qs").innerHTML = c.qs.map(q => `<button onclick="quick(this.textContent)">${esc(q)}</button>`).join("");
 }
 const _al2 = applyLang;
-applyLang = function () { _al2(); chatUI(); };
+const MENU = { ar: "المجموعات", es: "Colecciones", fr: "Collections", en: "Collections", it: "Collezioni" };
+function menuUI() {
+  $("bMenu").textContent = "☰ " + MENU[lang];
+  $("menu").innerHTML = [["all", t("all")]].concat(allCats().map(c => [c.key, c.label]))
+    .map(([k, l]) => `<button class="${cat === k ? "on" : ""}" onclick="goCat('${k}')">${esc(l)}</button>`).join("");
+}
+function toggleMenu() { $("menu").classList.toggle("on"); }
+function goCat(k) { cat = k; $("menu").classList.remove("on"); applyLang(); render(); $("cats").scrollIntoView({ behavior: "smooth" }); }
+applyLang = function () { _al2(); chatUI(); menuUI(); };
 function say(cls, text) {
   const d = document.createElement("div"); d.className = "m " + cls; d.textContent = text;
   $("msgs").appendChild(d); $("msgs").scrollTop = $("msgs").scrollHeight;
